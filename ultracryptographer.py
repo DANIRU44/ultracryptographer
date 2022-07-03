@@ -278,7 +278,7 @@ while True:
     try:
         print('''       
        Powered by DANIRU44
-            alpha 1.0.0  
+            alpha 1.0.2  
                                  ''')
                                         
         print('''
