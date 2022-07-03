@@ -191,8 +191,7 @@ def permutation_cipher():
         print("".join(cipher))
         return "".join(cipher), key 
 
-    elif choice_mode == 2:
-        message = message[:len(message)-1] 
+    elif choice_mode == 2: 
         key = int(input(f"введи ключ от 2 до {len(message)//2 + 1}: "))
         num_columns, num_rows = int(math.ceil(len(message) / float(key))), key
         num_zoro = (num_columns * num_rows) - len(message)
@@ -287,7 +286,7 @@ while True:
 1 - Обратный шифр
 2 - Шифр Цезаря
 3 - Перестановочный шифр
-4 - Подставочный  шифр
+4 - Подстановочный  шифр
 5 - Шифр Виженера''')
 
         type_cipher = int(input('ввод: '))
