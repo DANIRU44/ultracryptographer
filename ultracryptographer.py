@@ -66,34 +66,42 @@ def filtering_text(message): #убирает все символы не вход
 def full_preprocessing(message): #не работает с другими языками кроме русского
     return filtering_text(replase_mark(message))
 
-def key_choise():
+def key_choises():
     global alphabet
     key_choise = int(input(f"""
-введи ключ из неповторяющихся букв длинной {len(alphabet)-1} или дай сделать это мне
+введи ключ из неповторяющихся букв и пробела длинной {len(alphabet)} или дай сделать это мне
 1 - ручной ввод
 2 - сгенерировать
 ввод: """))
 
     if key_choise == 1:
         key = input("введи ключ: ")
+        if len(key) != len(alphabet):
+            print("неправльная длина ключа")
+            return key_choises()
+        return key
 
     elif key_choise == 2:
         key = list(alphabet)
         random.shuffle(key)
         key = "".join(key) 
         print(key)
-    return key  
+        return key  
 
 def mega_key_choise(message):
     global alphabet
     key_choise = int(input(f"""
-введи ключ из букв длинной до {len(message)} или дай сделать это мне
+введи ключ из букв длинной {len(message)} или дай сделать это мне
 1 - ручной ввод
 2 - сгенерировать
 ввод: """))
 
     if key_choise == 1:
         key = input("введи ключ: ")
+        if len(key) != len(message):
+            print("""
+неправильная длина ключа""")
+            return mega_key_choise(message)
 
     elif key_choise == 2:
         key = []
@@ -182,6 +190,10 @@ def permutation_cipher():
 
     if choice_mode == 1:    #попытаться переделать через транспонирование матрицы (или нет)
         key = int(input(f"введи ключ от 2 до {len(message)//2 + 1}: "))
+        if key<2 or key>(len(message)//2 + 1):
+            print("""
+неправильное значение ключа""")
+            return permutation_cipher()
         cipher = [''] * key
         for column in range(key):       
             currentindex = column
@@ -193,6 +205,10 @@ def permutation_cipher():
 
     elif choice_mode == 2: 
         key = int(input(f"введи ключ от 2 до {len(message)//2 + 1}: "))
+        if key<2 or key>(len(message)//2 + 1):
+            print("""
+неправильное значение ключа""")
+            return permutation_cipher()        
         num_columns, num_rows = int(math.ceil(len(message) / float(key))), key
         num_zoro = (num_columns * num_rows) - len(message)
         decrypted = [''] * num_columns
@@ -228,7 +244,7 @@ def substitution_cipher():
 1 - зашифровать 
 2 - расшифровать""")
     choice_mode = int(input("ввод: "))
-    message, key = full_preprocessing(input("введи текст: ")), key_choise()
+    message, key = full_preprocessing(input("введи текст: ")), key_choises()
     if choice_mode == 1:
         cipher = ''
         for sumbol in message:
@@ -278,7 +294,7 @@ def main():
         try:
             print('''       
        Powered by DANIRU44
-            alpha 1.0.3  
+            alpha 1.0.4  
                                  ''')
                                         
             print('''
@@ -306,12 +322,12 @@ def main():
     ЧТО-ТО ПОШЛО НЕ ТАК, вводи корректные значения""")
 
         finally:
-            vihod = int(input("""
+            vihod = str(input("""
 продолжить? 
 1 - да 
 любая другая кнопка - нет
 ввод: """))
-            if vihod != 1:
+            if vihod != "1":
                 break
 
 if __name__ == "__main__":
