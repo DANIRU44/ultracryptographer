@@ -81,7 +81,7 @@ def key_choise():
         key = list(alphabet)
         random.shuffle(key)
         key = "".join(key) 
-        print(f"{key}.")
+        print(key)
     return key  
 
 def mega_key_choise(message):
@@ -100,7 +100,7 @@ def mega_key_choise(message):
         while len(key) < len(message):
             key.append(random.choice(list(alphabet)))
         key = "".join(key) 
-        print(f"{key}.")
+        print(key)
     return key  
 
 def save_result(*anything):
@@ -110,7 +110,7 @@ def save_result(*anything):
 2 - нет
 ввод: """))
     if save_file == 1:
-        with open('crypto.txt','a') as crypto_text:
+        with open('crypto.txt','a', encoding='utf-8') as crypto_text:
             crypto_text.write(f"{anything}\n")
     save_qr = int(input("""
 а в формате QR кода?
@@ -234,8 +234,8 @@ def substitution_cipher():
         for sumbol in message:
             sumbol_ind = alphabet.find(sumbol)
             cipher += key[sumbol_ind]
-        print(f"{cipher}.")
-        return f"{cipher}."
+        print(cipher)
+        return cipher, key
              
     elif choice_mode == 2:
         alphabet, key, decrypted = key, alphabet, ''
@@ -273,15 +273,15 @@ def vigenere_cipher():
     print(antireplase_mark(''.join(cipher)))
     return antireplase_mark(''.join(cipher)), key 
 
-
-while True:
-    try:
-        print('''       
+def main():
+    while True:
+        try:
+            print('''       
        Powered by DANIRU44
-            alpha 1.0.2  
+            alpha 1.0.3  
                                  ''')
                                         
-        print('''
+            print('''
 Выберите шифр:
 1 - Обратный шифр
 2 - Шифр Цезаря
@@ -289,29 +289,32 @@ while True:
 4 - Подстановочный  шифр
 5 - Шифр Виженера''')
 
-        type_cipher = int(input('ввод: '))
-        if type_cipher == 1:
-            save_result(reverse_cipher()) #готов
-        elif type_cipher == 2:
-            save_result(caesar_cipher()) #готов (ведуться работы по улучшению взлома)
-        elif type_cipher == 3:
-            save_result(permutation_cipher()) #готов
-        elif type_cipher == 4:
-            save_result(substitution_cipher())#готов
-        elif type_cipher == 5:
-            save_result(vigenere_cipher())#готов
+            type_cipher = int(input('ввод: '))
+            if type_cipher == 1:
+                save_result(reverse_cipher()) #готов
+            elif type_cipher == 2:
+                save_result(caesar_cipher()) #готов (ведуться работы по улучшению взлома)
+            elif type_cipher == 3:
+                save_result(permutation_cipher()) #готов
+            elif type_cipher == 4:
+                save_result(substitution_cipher())#готов
+            elif type_cipher == 5:
+                save_result(vigenere_cipher())#готов
 
-    except:
-        print("""
+        except:
+            print("""
     ЧТО-ТО ПОШЛО НЕ ТАК, вводи корректные значения""")
 
-    finally:
-        vihod = int(input("""
+        finally:
+            vihod = int(input("""
 продолжить? 
 1 - да 
 любая другая кнопка - нет
 ввод: """))
-        if vihod != 1:
-            break
+            if vihod != 1:
+                break
+
+if __name__ == "__main__":
+    main()
 
 #Это текст для отладки 1234. Всё должно быть на своих местах, кроме этого hello world. 
