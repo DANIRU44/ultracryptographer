@@ -2,7 +2,8 @@
 import math
 import random
 import qrcode  
-
+import users
+import os
 ##### НАСТРОЙКИ И ФОРМАТИРОВАНИЕ #####
 all_alphabets = {
                 1: "абвгдеёжзийклмнопрстуфхцчшщъыьэюя ",
@@ -85,7 +86,6 @@ def key_choises():
         key = list(alphabet)
         random.shuffle(key)
         key = "".join(key) 
-        print(key)
         return key  
 
 def mega_key_choise(message):
@@ -108,18 +108,24 @@ def mega_key_choise(message):
         while len(key) < len(message):
             key.append(random.choice(list(alphabet)))
         key = "".join(key) 
-        print(key)
     return key  
 
 def save_result(*anything):
+    name = users.account_action()#НЕ БЕЗОПАСНО, пароли хранятся в открытом виде
     save_file = int(input("""
 сохранить текст и ключ в файле?
 1 - да
 2 - нет
 ввод: """))
-    if save_file == 1:
+
+    if save_file == 1 and name != None:
+        with open(f'{name}.txt','a', encoding='utf-8') as crypto_text:
+            crypto_text.write(f"{anything}\n")
+
+    elif save_file == 1:
         with open('crypto.txt','a', encoding='utf-8') as crypto_text:
             crypto_text.write(f"{anything}\n")
+
     save_qr = int(input("""
 а в формате QR кода?
 1 - да 
@@ -129,17 +135,17 @@ def save_result(*anything):
         img = qrcode.make(anything)
         img.save(f'crypto{random.randint(1,4444)}.png')
 
-    
+def my_password():
+    name = users.sing_in() 
+    os.startfile(f'{name}.txt')
+
 ##### ШИФРЫ #####
 
-#ОБРАТНЫЙ ШИФР
 def reverse_cipher():
     message = input("введи текст: ")
-    reverse_message = ''
-    len_mes = len(message) - 1
+    reverse_message, len_mes = '', len(message) - 1
     while len_mes >= 0:
-        reverse_message = reverse_message + message[len_mes]
-        len_mes -= 1
+        reverse_message, len_mes = reverse_message + message[len_mes], len_mes - 1
     print(reverse_message)
     return reverse_message
 
@@ -164,6 +170,7 @@ def caesar_cipher():
             cipher = ''.join([index_to_word[(word_to_index[word] - shift) % len(word_to_index)] for word in cipher])
             antireplase_mark(cipher)
         print(cipher)
+        print(shift)
         return cipher, shift
 
     elif choice_mode == 3: #все переделать, основываться на частотности (хотя можно и оставить)
@@ -198,9 +205,9 @@ def permutation_cipher():
         for column in range(key):       
             currentindex = column
             while currentindex < len(message):
-                cipher[column] += message[currentindex]
-                currentindex += key
+                cipher[column], currentindex =  cipher[column] + message[currentindex], currentindex + key
         print("".join(cipher))
+        print(key)
         return "".join(cipher), key 
 
     elif choice_mode == 2: 
@@ -218,10 +225,11 @@ def permutation_cipher():
             if (column == num_columns) or (column == num_columns - 1 and row >= num_rows - num_zoro):
                 column, row = 0, row + 1
         print(''.join(decrypted))
+        print(key)
         return ''.join(decrypted), key
 
     elif choice_mode == 3: 
-        message, all_comb = message[:len(message)-1], []
+        all_comb =[]
         for key in range(2, len(message)//2 + 1):
             num_columns, num_rows = int(math.ceil(len(message) / float(key))), key
             num_zoro = (num_columns * num_rows) - len(message)
@@ -244,25 +252,23 @@ def substitution_cipher():
 1 - зашифровать 
 2 - расшифровать""")
     choice_mode = int(input("ввод: "))
-    message, key = full_preprocessing(input("введи текст: ")), key_choises()
+    message, key, cipher = full_preprocessing(input("введи текст: ")), key_choises(), ""
+    
     if choice_mode == 1:
-        cipher = ''
-        for sumbol in message:
-            sumbol_ind = alphabet.find(sumbol)
-            cipher += key[sumbol_ind]
+        cipher = "".join([key[alphabet.find(sumbol)] for sumbol in message])
         print(cipher)
+        print(key)
         return cipher, key
              
     elif choice_mode == 2:
-        alphabet, key, decrypted = key, alphabet, ''
-        for sumbol in message:
-            sumbol_ind = alphabet.find(sumbol)
-            decrypted += key[sumbol_ind]
-        print(antireplase_mark(decrypted))
-        return antireplase_mark(decrypted), key
+        alphabet, key = key, alphabet
+        cipher = "".join([key[alphabet.find(sumbol)] for sumbol in message])
+        print(antireplase_mark(cipher))
+        print(key)
+        return antireplase_mark(cipher), key
         
     
-def vigenere_cipher():
+def book_cipher():
     global alphabet
     alphabets() 
     print("""
@@ -275,18 +281,17 @@ def vigenere_cipher():
     for symbol in message:
         num = alphabet.find(symbol)
         if num != -1:
-            if choice_mode == 1:
-                num += alphabet.find(key[key_index])
-            elif choice_mode == 2:
-                num -= alphabet.find(key[key_index])
-            
+
+            if choice_mode == 1: num += alphabet.find(key[key_index])
+            elif choice_mode == 2: num -= alphabet.find(key[key_index])
+
             num %= len(alphabet)
             cipher.append(alphabet[num])
             key_index += 1
 
-            if key_index == len(key):
-                key_index = 0
+            if key_index == len(key): key_index = 0 
     print(antireplase_mark(''.join(cipher)))
+    print(key)
     return antireplase_mark(''.join(cipher)), key 
 
 def main():
@@ -294,7 +299,7 @@ def main():
         try:
             print('''       
        Powered by DANIRU44
-            alpha 1.0.4  
+            alpha 1.1.0  
                                  ''')
                                         
             print('''
@@ -303,20 +308,17 @@ def main():
 2 - Шифр Цезаря
 3 - Перестановочный шифр
 4 - Подстановочный  шифр
-5 - Шифр Виженера''')
+5 - Шифрблокнот
+
+4444 - открыть свои пароли''')
 
             type_cipher = int(input('ввод: '))
-            if type_cipher == 1:
-                save_result(reverse_cipher()) #готов
-            elif type_cipher == 2:
-                save_result(caesar_cipher()) #готов (ведуться работы по улучшению взлома)
-            elif type_cipher == 3:
-                save_result(permutation_cipher()) #готов
-            elif type_cipher == 4:
-                save_result(substitution_cipher())#готов
-            elif type_cipher == 5:
-                save_result(vigenere_cipher())#готов
-
+            if type_cipher == 1: save_result(reverse_cipher()) #готов
+            elif type_cipher == 2: save_result(caesar_cipher()) #готов 
+            elif type_cipher == 3: save_result(permutation_cipher()) #готов
+            elif type_cipher == 4: save_result(substitution_cipher())#готов
+            elif type_cipher == 5: save_result(book_cipher())#готов
+            elif type_cipher == 4444: my_password()
         except:
             print("""
     ЧТО-ТО ПОШЛО НЕ ТАК, вводи корректные значения""")
@@ -327,8 +329,7 @@ def main():
 1 - да 
 любая другая кнопка - нет
 ввод: """))
-            if vihod != "1":
-                break
+            if vihod != "1": break
 
 if __name__ == "__main__":
     main()
